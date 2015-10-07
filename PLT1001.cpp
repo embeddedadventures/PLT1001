@@ -34,9 +34,10 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/*	PLT1001 LED Matrix display driver Arduino library
+/*	
+	PLT1001 LED Matrix display driver Arduino library
 	Written originally by Embedded Adventures
-	v1.0 
+	v1.1 - displays() function added  
 */
 
 
@@ -78,100 +79,81 @@ void PLT1001Class::clear() {
 }
 
 void PLT1001Class::rect(int color, int x, int y, int wt, int ht) {
-	mySerial->print("rect ");
-	mySerial->print(color);
-	mySerial->print(" ");
-	mySerial->print(x);
-	mySerial->print(" ");
-	mySerial->print(y);
-	mySerial->print(" ");
-	mySerial->print(wt);
-	mySerial->print(" ");
-	mySerial->print(ht);
-	mySerial->print("\r");
-	while (mySerial->available()) {
+	String s = "rect ";
+	s += (String)color + " ";
+	s += (String)x + " ";
+	s += (String)y + " ";
+	s += (String)wt + " ";
+	s += (String)ht + "\r";
+	mySerial->print(s);
+	/*while (mySerial->available()) {
 		Serial.print((char)mySerial->read());
-	}
+	}*/
 }
 
 void PLT1001Class::paint() {
 	delay(DELAY_TIME);
 	mySerial->print("paint\r");
-	while (mySerial->available()) {
+	/*while (mySerial->available()) {
 		Serial.print((char)mySerial->read());
-	}
+	}*/
 }
 
 void PLT1001Class::pixel(int color, int x, int y) {
-	mySerial->print("pixel ");
-	mySerial->print(color);
-	mySerial->print(" ");
-	mySerial->print(x);
-	mySerial->print(" ");
-	mySerial->print(y);
-	mySerial->print("\r");
-	while (mySerial->available()) {
+	String s = "pixel ";
+	s += (String)color + " ";
+	s += (String)x + " ";
+	s += (String)y + "\r";
+	mySerial->print(s);
+	/*while (mySerial->available()) {
 		Serial.print((char)mySerial->read());
-	}
+	}*/
 }
 
 void PLT1001Class::line(int color, int x1, int y1, int x2, int y2) {
-	mySerial->print("line ");
-	mySerial->print(color);
-	mySerial->print(" ");
-	mySerial->print(x1);
-	mySerial->print(" ");
-	mySerial->print(y1);
-	mySerial->print(" ");
-	mySerial->print(x2);
-	mySerial->print(" ");
-	mySerial->print(y2);
-	mySerial->print("\r");
-	while (mySerial->available()) {
+	String s = "line ";
+	s += (String)color + " ";
+	s += (String)x1 + " ";
+	s += (String)y1 + " ";
+	s += (String)x2 + " ";
+	s += (String)y2 + " \r";
+	mySerial->print(s);
+	/*while (mySerial->available()) {
 		Serial.print((char)mySerial->read());
-	}
+	}*/
 }
 
 void PLT1001Class::circle(int color, int x, int y, int radius) {
-	mySerial->print("circle ");
-	mySerial->print(color);
-	mySerial->print(" ");
-	mySerial->print(x);
-	mySerial->print(" ");
-	mySerial->print(y);
-	mySerial->print(" ");
-	mySerial->print(radius);
-	mySerial->print("\r");
-	while (mySerial->available()) {
+	String s = "cirle ";
+	s += (String)color + " ";
+	s += (String)x + " ";
+	s += (String)y + " ";
+	s += (String)radius + "\r";
+	mySerial->print(s);
+	/*while (mySerial->available()) {
 		Serial.print((char)mySerial->read());
-	}
+	}*/
 }
 
 void PLT1001Class::circle2(int color, int x, int y, int radius) {
-	mySerial->print("circle2 ");
-	mySerial->print(color);
-	mySerial->print(" ");
-	mySerial->print(x);
-	mySerial->print(" ");
-	mySerial->print(y);
-	mySerial->print(" ");
-	mySerial->print(radius);
-	mySerial->print("\r");
-	while (mySerial->available()) {
+	String s = "circle2 ";
+	s += (String)color + " ";
+	s += (String)x + " ";
+	s += (String)y + " ";
+	s += (String)radius + "\r";
+	mySerial->print(s);
+	/*while (mySerial->available()) {
 		Serial.print((char)mySerial->read());
-	}
+	}*/
 }
 
 void PLT1001Class::circlef(int color, int x, int y, int radius) {
-	mySerial->print("circlef ");
-	mySerial->print(color);
-	mySerial->print(" ");
-	mySerial->print(x);
-	mySerial->print(" ");
-	mySerial->print(y);
-	mySerial->print(" ");
-	mySerial->print(radius);
-	mySerial->print("\r");
+	String s = "circlef ";
+	s += (String)color + " ";
+	s += (String)x + " ";
+	s += (String)y + " ";
+	s += (String)radius + "\r";
+	mySerial->print(s);
 }
 
 void PLT1001Class::font(int font) {
@@ -180,60 +162,59 @@ void PLT1001Class::font(int font) {
 }
 
 void PLT1001Class::text(int color, int x, int y, char *str) {
-	mySerial->print("text ");
-	mySerial->print(color);
-	mySerial->print(" ");
-	mySerial->print(x);
-	mySerial->print(" ");
-	mySerial->print(y);
-	mySerial->print(" \"");
-	mySerial->print(str);
-	mySerial->print("\"\r");
-	while (mySerial->available()) {
+	String s = "text ";
+	s += (String)color + " ";
+	s += (String)x + " ";
+	s += (String)y + " ";
+	s += str;
+	s += "\r";
+	mySerial->print(s);
+	/*while (mySerial->available()) {
 		Serial.print((char)mySerial->read());
-	}
+	}*/
 }
 
 /*Print text. Bottom left corner of first letter starts at x,y*/
 void PLT1001Class::textv(int color, int x, int y, char *str) {
-	mySerial->print("textv ");
-	mySerial->print(color);
-	mySerial->print(" ");
-	mySerial->print(x);
-	mySerial->print(" ");
-	mySerial->print(y);
-	mySerial->print(" \"");
-	mySerial->print(str);
-	mySerial->print("\"\r");
-	while (mySerial->available()) {
+	String s = "textv ";
+	s += (String)color + " ";
+	s += (String)x + " ";
+	s += (String)y + " ";
+	s += str;
+	s += "\r";
+	mySerial->print(s);
+	/*while (mySerial->available()) {
 		Serial.print((char)mySerial->read());
-	}
+	}*/
 }
 
 void PLT1001Class::scrollspeed(int spd) {
 	mySerial->print("scrollspeed ");
 	mySerial->print(spd);
 	mySerial->print("\r");
-	while (mySerial->available()) {
+	/*while (mySerial->available()) {
 		Serial.print((char)mySerial->read());
-	}
+	}*/
 }
 
 void PLT1001Class::scroll(int color, int x, int y, int width, char *str) {
-	mySerial->print("scroll ");
-	mySerial->print(color);
-	mySerial->print(" ");
-	mySerial->print(x);
-	mySerial->print(" ");
-	mySerial->print(y);
-	mySerial->print(" ");
-	mySerial->print(width);
-	mySerial->print(" \"");
-	mySerial->print(str);
-	mySerial->print("\"\r");
-	while (mySerial->available()) {
+	String s = "scroll ";
+	s += (String)color + " ";
+	s += (String)x + " ";
+	s += (String)y + " ";
+	s += (String)width + " ";
+	s += str;
+	s += "\r";
+	mySerial->print(s);
+	/*while (mySerial->available()) {
 		while ((char)mySerial->read() != '<') {		}
-	}
+	}*/
+}
+
+void PLT1001Class::displays(int n) {
+	String s = "displays " + (String)n;
+	s += "\r";
+	mySerial->print(s);
 }
 
 void PLT1001Class::end() {

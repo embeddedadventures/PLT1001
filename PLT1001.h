@@ -36,7 +36,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 /*	PLT1001 LED Matrix display driver Arduino library
 	Written originally by Embedded Adventures
-	v1.0 
+	v1.1 - displays() function added 
 */
 
 
@@ -54,10 +54,13 @@ public:
 	/*Initialize the plt1001 class. In .ino, use plt1001.init(&Serial1)*/
 	void init(HardwareSerial *cereal);		
 	
+	/*Clear the display and close the serial port driving the PLT1001*/
 	void end();
 	
+	/*Active high*/
 	void enableHigh();
 	
+	/*Active low*/
 	void enableLow();
 	
 	/*Clear the display*/
@@ -98,7 +101,8 @@ public:
 	/*Display the version number*/
 	void title();
 	
-	void displays();
+	/*Change the number of displays being driven*/
+	void displays(int n);
 
 	void paint();
 };
