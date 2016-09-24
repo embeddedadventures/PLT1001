@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2015, Embedded Adventures
+Copyright (c) 2016, Embedded Adventures
 All rights reserved.
 
 Contact us at source [at] embeddedadventures.com
@@ -40,28 +40,118 @@ THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
+#include <Wire.h>
 #include <PLT1001.h> 
+
+PLT1001 plt1001;
 
 void setup() {
   Serial.begin(115200);
-  plt1001.init(&Serial1);
+  
+  //Using I2C for communication
+  plt1001.begin();
+  
+  //Using Serial1 on the Arduino Micro
+  //plt1001.begin(&Serial1);
+  
+  Serial.println("Welcome to the PLT1001 LED Display Matrix Driver test sketch");
+  Serial.println("Embedded Adventures (embeddedadventures.com)");
+  delay(1000);
+  plt1001.title();
+  delay(1500);
+  plt1001.clear();
+  plt1001.paint();
+  delay(500);
+  plt1001.setScrollspeed(50);
+  plt1001.scroll(3, 16, 15, 15, 8, "SCROLL");
   delay(5000);
   plt1001.clear();
-  Serial.println("Display initialized");
+  plt1001.paint();
+  delay(500);
 }
 
 void loop() {
-  for (int j = 1; j < 4; j++) {
-    for (int i = 0; i < 29; i++) {
-      plt1001.line(j, 0, i, 63, i);
-      plt1001.line(j, 0, i+1, 63, i+1);
-      plt1001.line(j, 0, i+2, 63, i+2);
-      plt1001.line(j, 0, i+3, 63, i+3);
-      plt1001.paint();
-      delay(250);
-      plt1001.clear();
-    }
-  }
+  plt1001.wait();
+  delay(100);
+  pixelTest();
+  delay(1000);
+  plt1001.clear();
+  plt1001.paint();
+  lineTest();
+  delay(1000);
+  plt1001.clear();
+  plt1001.paint();
+  rect();
+  delay(1000);
+  plt1001.clear();
+  plt1001.paint();
+  circles();
+  delay(1000);
+  plt1001.clear();
+  plt1001.paint();
+  textTest();
+  delay(1000);
+  plt1001.clear();
+  plt1001.paint();
+
 }
+
+void textTest() {
+  plt1001.text(1, 8, 23, "TEXT L");
+  plt1001.paint();
+  delay(500);
+  plt1001.clear();
+  plt1001.paint();
+  plt1001.text_rightJustified(1, 55, 23, "TEXT R");
+  plt1001.paint();
+  delay(500);
+  plt1001.clear();
+  plt1001.paint();
+  plt1001.text_centerJustified(1, 32, 23, "TEXT C");
+  plt1001.paint();
+  delay(500);
+  plt1001.clear();
+  plt1001.paint();
+  plt1001.text_vertical(2, 32, 23, "VERT");
+  plt1001.paint();
+  delay(500);
+  plt1001.clear();
+  plt1001.paint();
+  plt1001.text_column(2, 12, 3, "COL");
+  plt1001.paint();
+  delay(500);
+  plt1001.clear();
+  plt1001.paint();
+  plt1001.text_vertColumn(2, 16, 14, "VCOL");
+  plt1001.paint();
+}
+
+void circles() {
+  plt1001.circle(1, 12, 14, 4);
+  plt1001.filledCircle(2, 21, 14, 4);
+  plt1001.circle2(2, 41, 14, 4);
+  plt1001.filledCircle2(1, 51, 14, 4);
+  plt1001.paint();
+}
+
+void rect() {
+  plt1001.rectangle(2, 12, 19, 40, 8);
+  plt1001.paint();
+}
+
+void lineTest() {
+  plt1001.line(3, 8, 8, 55, 8);
+  plt1001.line(3, 8, 23, 55, 23);
+  plt1001.paint();
+}
+
+void pixelTest() {
+  plt1001.pixel(3, 0, 0);
+  plt1001.pixel(1, 63, 0);
+  plt1001.pixel(2, 0, 31);
+  plt1001.pixel(3, 63, 31);
+  plt1001.paint();
+}
+
 
 
