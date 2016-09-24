@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2015, Embedded Adventures
+Copyright (c) 2016, Embedded Adventures
 All rights reserved.
 
 Contact us at source [at] embeddedadventures.com
@@ -36,77 +36,111 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 /*	PLT1001 LED Matrix display driver Arduino library
 	Written originally by Embedded Adventures
-	v1.1 - displays() function added 
+	v2.0
 */
 
 
-#ifndef __PLT1001_H
-#define __PLT1001_H
-#include "HardwareSerial.h"
-#define DELAY_TIME 20
+#ifndef __PLT1001_H_
+#define	__PLT1001_H_
 
-class PLT1001Class
-{
+#include "Arduino.h"
+#include "Wire.h"
+
+#ifndef		uns8
+	#define		uns8	uint8_t
+#endif
+
+#ifndef		uns16
+	#define		uns16	uint16_t
+#endif
+
+#define 	PLT1001_ADDR		0x20
+#define		PLT1001_DELAY		2
+
+//Command defines 	->			I2C,	Serial
+#define		CMD_TITLE			0x00,	(String)"title\r"
+#define		CMD_VERSION			0x01,	(String)""
+#define		CMD_BOARD			0x02,	(String)""
+#define		CMD_NUM_DISPLAYS	0x03,	(String)""
+#define		CMD_PAINT			0x04,	(String)"paint\r"
+#define		CMD_CLEAR			0x05,	(String)"clear\r"
+
+#define		CMD_ENABLEACTIVE	0x06,	(String)"enableactive "
+#define		CMD_SET_DISPLAYS	0x07,	(String)"displays "
+#define		CMD_TEST			0x08,	(String)""
+#define		CMD_INVERT			0x09,	
+#define		CMD_BRIGHTNESS		0x0A,	(String)""
+#define		CMD_FONT			0x0B,	(String)"font "
+#define		CMD_SCROLLSPEED		0x0C,	(String)"scrollspeed "
+
+#define		CMD_PIXEL			0x0D,	(String)"pixel "
+
+#define		CMD_CIRCLE			0x0E,	(String)"circle"
+
+#define		CMD_LINE			0x0F,	(String)"line "
+#define		CMD_RECT			0x0F,	(String)"rect "
+
+#define		CMD_TEXT			0x10,	(String)"text"
+
+#define		CMD_SCROLL			0x11,	(String)"scroll "
+#define		CMD_SCROLLSTOP		0x12,	(String)""
+
+class PLT1001 {
 private:
-	HardwareSerial *mySerial;
-
+	HardwareSerial *_mySerial;
+	bool			_usingI2C;	
+	uns8			_currentFont;
+	
+	void	command(uns8 i2c_cmd, String s, uns8 param);
+	void	command(uns8 i2c_cmd, String s, uns8 param_clr, uns16 param_x, uns16 param_y, int param_rad = -1);
+	void	command(uns8 i2c_cmd, String s, uns8 param_clr, uns16 param_x1, uns16 param_y1, uns16 param_x2, uns16 param_y2);
+	void	command(uns8 i2c_cmd, String s, uns8 param_clr, uns8 param_x, uns8 param_y, char* text);
+	void	command(uns8 i2c_cmd, String s, uns8 param_clr, uns8 param_x, uns8 param_y, const char* text);
+	void	command(uns8 i2c_cmd, String s, uns8 param_clr, uns16 param_x1, uns16 param_y1, uns16 param_x2, uns16 param_y2, char* text);
+	void	command(uns8 i2c_cmd, String s, uns8 param_clr, uns16 param_x1, uns16 param_y1, uns16 param_x2, uns16 param_y2, const char* text);
+	
 public:
-	/*Initialize the plt1001 class. In .ino, use plt1001.init(&Serial1)*/
-	void init(HardwareSerial *cereal);		
+	PLT1001();	//Defaults to I2C usage
 	
-	/*Clear the display and close the serial port driving the PLT1001*/
-	void end();
+	void	begin(HardwareSerial *cereal = 0);
+	void	title();
+	void	paint();
+	void	clear();
 	
-	/*Active high*/
-	void enableHigh();
+	void	enableActiveHigh(bool en);
+	void	setFont(uns8 font);
+	void	setScrollspeed(uns8 speed);
 	
-	/*Active low*/
-	void enableLow();
+	void	pixel(uns8 color, uns16 x, uns16 y);
 	
-	/*Clear the display*/
-	void clear();
+	void	line(uns8 color, uns16 x1, uns16 y1, uns16 x2, uns16 y2);
+	void	rectangle(uns8 color, uns16 x, uns16 y, uns16 wd, uns16 ht);
 	
-	/*Illuminate a pixel. (0,0) for x,y is the top left corner*/
-	void pixel(int color, int x, int y);
+	void 	circle(uns8 color, uns16 x, uns16 y, uns8 radius);
+	void 	filledCircle(uns8 color, uns16 x, uns16 y, uns8 radius);
+	void 	circle2(uns8 color, uns16 x, uns16 y, uns8 radius);
+	void 	filledCircle2(uns8 color, uns16 x, uns16 y, uns8 radius);	
 	
-	/*Draw a line from x1,y1 to x2,y2*/
-	void line(int color, int x1, int y1, int x2, int y2);
-
-	/*Draw a rectangle*/
-	void rect(int color, int x, int y, int wt, int ht);
+	void 	text(uns8 color, uns16 x, uns16 y, char* text);
+	void 	text(uns8 color, uns16 x, uns16 y, const char* text);
+	void 	text(uns8 color, uns16 x, uns16 y, String text);
+	void 	text(uns8 color, uns16 x, uns16 y, uns8 text);
 	
-	/*Draw a circle with center x,y and radius*/
-	void circle(int color, int x, int y, int radius);
+	void 	scroll(uns8 color, uns16 x, uns16 y, uns16 wd, uns16 ht, char* text);
+	void 	scroll(uns8 color, uns16 x, uns16 y, uns16 wd, uns16 ht, String text);
+	void 	scroll(uns8 color, uns16 x, uns16 y, uns16 wd, uns16 ht, const char* text);
 	
-	/*Draw a filled circle*/
-	void circlef(int color, int x, int y, int radius);
+	//Not supported for UART/Serial communication
+	void 	text_rightJustified(uns8 color, uns16 x, uns16 y, char* text);
+	void 	text_centerJustified(uns8 color, uns16 x, uns16 y, char* text);
+	void 	text_vertical(uns8 color, uns16 x, uns16 y, char* text);
+	void 	text_column(uns8 color, uns16 x, uns16 y, char* text);
+	void 	text_vertColumn(uns8 color, uns16 x, uns16 y, char* text);
 	
-	/*Draw a "squared" circle; an extra pixel inserted at top and side to completely fill a square space*/
-	void circle2(int color, int x, int y, int radius);
-	
-	/*Set font to one of 7 types*/
-	void font(int font);
-	
-	/*Print text. Bottom left corner of text starts at x,y*/
-	void text(int color, int x, int y, char *str);
-	
-	void textv(int color, int x, int y, char *str);
-	
-	/*Print text that scrolls in a rectangle. Bottom left of rectangle starts at x,y. Height determined by font*/
-	void scroll(int color, int x, int y, int width, char *str);
-	
-	/*Change scroll speed. spd = ms per change*/
-	void scrollspeed(int spd);
-
-	/*Display the version number*/
-	void title();
-	
-	/*Change the number of displays being driven*/
-	void displays(int n);
-
-	void paint();
+	//Not yet supported
+	//void 	scrollVertical(uns8 color, uns16 x, uns16 y, uns16 ht, uns16 wd, char* text);
+	//void 	scrollColumn(uns8 color, uns16 x, uns16 y, uns16 ht, uns16 wd, char* text);
+	//void 	scrollVerticalColumn(uns8 color, uns16 x, uns16 y, uns16 ht, uns16 wd, char* text);
 };
-
-extern PLT1001Class plt1001;
 
 #endif

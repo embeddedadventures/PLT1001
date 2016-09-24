@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2015, Embedded Adventures
+Copyright (c) 2016, Embedded Adventures
 All rights reserved.
 
 Contact us at source [at] embeddedadventures.com
@@ -37,194 +37,387 @@ THE POSSIBILITY OF SUCH DAMAGE.
 /*	
 	PLT1001 LED Matrix display driver Arduino library
 	Written originally by Embedded Adventures
-	v1.1 - displays() function added  
+	v2.0 
 */
 
 
-#include "Arduino.h"
 #include "PLT1001.h"
-#include "HardwareSerial.h"
 
-void PLT1001Class::init(HardwareSerial *cereal) {
-	mySerial = cereal;
-	mySerial->begin(115200);
-	title();
+#define		PLT1001_DEBUG
+
+#ifdef		PLT1001_DEBUG
+	#define		DEBUG(x)	Serial.print(x)
+	#define		DEBUGLN(x)	Serial.println(x)
+#else
+	#define		DEBUG(x)	
+	#define		DEBUGLN(x)	
+#endif
+
+PLT1001::PLT1001() {
+	_usingI2C = true;
+	_mySerial = 0;
+	_currentFont = 1;
 }
 
-void PLT1001Class::enableHigh() {
-	mySerial->print("enableactive 1\r");
-	while (mySerial->available()) {
-		Serial.print((char)mySerial->read());
+void PLT1001::begin(HardwareSerial *cereal) {
+	if (cereal == 0) {
+		_usingI2C = true;
+		_mySerial = 0;
+		Wire.begin();
+	}
+	else {
+		_usingI2C = false;
+		_mySerial = cereal;
+		_mySerial->begin(115200);
+		delay(PLT1001_DELAY*10);
+		DEBUGLN("serial mode");
 	}
 }
 
-void PLT1001Class::enableLow() {
-	mySerial->print("enableactive 0\r");
-	while (mySerial->available()) {
-		Serial.print((char)mySerial->read());
+void PLT1001::title() {
+	if (_usingI2C) {
+		Wire.beginTransmission(PLT1001_ADDR);
+		Wire.write(0x00);
+		Wire.endTransmission();
+	}
+	else {
+		DEBUGLN("Send thru rxtx");
+		_mySerial->print("title\r");
+	}
+	DEBUGLN("title");
+}
+
+void PLT1001::paint() {
+	delay(PLT1001_DELAY);
+	if (_usingI2C) {
+		Wire.beginTransmission(PLT1001_ADDR);
+		Wire.write(0x04);
+		Wire.endTransmission();
+	}
+	else {
+		_mySerial->print("paint\r");
 	}
 }
 
-void PLT1001Class::title() {
-	mySerial->print("title\r");
-	while (mySerial->available()) {
-		Serial.print((char)mySerial->read());
+void PLT1001::clear() {
+	delay(PLT1001_DELAY*5);
+	if (_usingI2C) {
+		Wire.beginTransmission(PLT1001_ADDR);
+		Wire.write(0x05);
+		Wire.endTransmission();
+	}
+	else {
+		_mySerial->print("clear\r");
 	}
 }
 
-void PLT1001Class::clear() {
-	mySerial->print("clear\r");
-	mySerial->print("paint\r");
-	delay(DELAY_TIME);
+void PLT1001::command(uns8 i2c_cmd, String s, uns8 param) {
+	if (_usingI2C) {
+		Wire.beginTransmission(PLT1001_ADDR);
+		Wire.write(i2c_cmd);
+		Wire.write(param);
+		Wire.endTransmission();
+	}
+	else {
+		s += (String)param;
+		s += "\r";
+		_mySerial->print(s);
+	}
 }
 
-void PLT1001Class::rect(int color, int x, int y, int wt, int ht) {
-	String s = "rect ";
-	s += (String)color + " ";
-	s += (String)x + " ";
-	s += (String)y + " ";
-	s += (String)wt + " ";
-	s += (String)ht + "\r";
-	mySerial->print(s);
-	/*while (mySerial->available()) {
-		Serial.print((char)mySerial->read());
-	}*/
+//Circles, pixel (when param_rad = -1)
+void PLT1001::command(uns8 i2c_cmd, String s, uns8 param_clr, uns16 param_x, uns16 param_y, int param_rad) {
+	if (_usingI2C) {
+		Wire.beginTransmission(PLT1001_ADDR);
+		Wire.write(i2c_cmd);
+		Wire.write(param_clr);
+		Wire.write(param_x >> 8);
+		Wire.write(param_x & 0xFF);
+		Wire.write(param_y >> 8);
+		Wire.write(param_y & 0xFF);
+		if (param_rad > 0)
+			Wire.write(param_rad);
+		Wire.endTransmission();
+	}
+	else {
+		s += " ";
+		s += (String)(param_clr & 0x0F) + " ";
+		s += (String)param_x + " ";
+		s += (String)param_y;
+		if (param_rad > 0)
+			s += " " + (String)param_rad;
+		s += "\r";
+		_mySerial->print(s);
+	}
 }
 
-void PLT1001Class::paint() {
-	delay(DELAY_TIME);
-	mySerial->print("paint\r");
-	/*while (mySerial->available()) {
-		Serial.print((char)mySerial->read());
-	}*/
+//Rectangles or lines
+void PLT1001::command(uns8 i2c_cmd, String s, uns8 param_clr, uns16 param_x1, uns16 param_y1, uns16 param_x2, uns16 param_y2) {
+	if (_usingI2C) {
+		Wire.beginTransmission(PLT1001_ADDR);
+		Wire.write(i2c_cmd);
+		Wire.write(param_clr);
+		Wire.write(param_x1 >> 8);
+		Wire.write(param_x1 & 0xFF);
+		Wire.write(param_y1 >> 8);
+		Wire.write(param_y1 & 0xFF);
+		Wire.write(param_x2 >> 8);	//Would be width
+		Wire.write(param_x2 & 0xFF);
+		Wire.write(param_y2 >> 8);	//Would be height
+		Wire.write(param_y2 & 0xFF);
+		Wire.endTransmission();
+	}
+	else {
+		s += (String)param_clr + " ";
+		s += (String)param_x1 + " ";
+		s += (String)param_y1 + " ";
+		s += (String)param_x2 + " ";
+		s += (String)param_y2 + "\r";
+		_mySerial->print(s);
+		DEBUGLN(s);
+	}
 }
 
-void PLT1001Class::pixel(int color, int x, int y) {
-	String s = "pixel ";
-	s += (String)color + " ";
-	s += (String)x + " ";
-	s += (String)y + "\r";
-	mySerial->print(s);
-	/*while (mySerial->available()) {
-		Serial.print((char)mySerial->read());
-	}*/
+//For text
+void PLT1001::command(uns8 i2c_cmd, String s, uns8 param_clr, uns8 param_x, uns8 param_y, char* text) {
+	if (_usingI2C) {
+		Wire.beginTransmission(PLT1001_ADDR);
+		Wire.write(i2c_cmd);
+		Wire.write(param_clr);
+		Wire.write(param_x >> 8);
+		Wire.write(param_x & 0xFF);
+		Wire.write(param_y >> 8);
+		Wire.write(param_y & 0xFF);
+		Wire.write(text);
+		Wire.endTransmission();
+	}
+	else {
+		s += (String)(param_clr & 0x0F) + " ";
+		s += (String)param_x + " ";
+		s += (String)param_y + " ";
+		s += text;
+		s += "\r";
+		_mySerial->print(s);
+	}
 }
 
-void PLT1001Class::line(int color, int x1, int y1, int x2, int y2) {
-	String s = "line ";
-	s += (String)color + " ";
-	s += (String)x1 + " ";
-	s += (String)y1 + " ";
-	s += (String)x2 + " ";
-	s += (String)y2 + " \r";
-	mySerial->print(s);
-	/*while (mySerial->available()) {
-		Serial.print((char)mySerial->read());
-	}*/
+//For text
+void PLT1001::command(uns8 i2c_cmd, String s, uns8 param_clr, uns8 param_x, uns8 param_y, const char* text) {
+	if (_usingI2C) {
+		Wire.beginTransmission(PLT1001_ADDR);
+		Wire.write(i2c_cmd);
+		Wire.write(param_clr);
+		Wire.write(param_x >> 8);
+		Wire.write(param_x & 0xFF);
+		Wire.write(param_y >> 8);
+		Wire.write(param_y & 0xFF);
+		Wire.write(text);
+		Wire.endTransmission();
+	}
+	else {
+		s += (String)(param_clr & 0x0F) + " ";
+		s += (String)param_x + " ";
+		s += (String)param_y + " ";
+		s += text;
+		s += "\r";
+		_mySerial->print(s);
+	}
 }
 
-void PLT1001Class::circle(int color, int x, int y, int radius) {
-	String s = "cirle ";
-	s += (String)color + " ";
-	s += (String)x + " ";
-	s += (String)y + " ";
-	s += (String)radius + "\r";
-	mySerial->print(s);
-	/*while (mySerial->available()) {
-		Serial.print((char)mySerial->read());
-	}*/
+//Scroll commands
+void PLT1001::command(uns8 i2c_cmd, String s, uns8 param_clr, uns16 param_x1, uns16 param_y1, uns16 param_x2, uns16 param_y2, const char* text) {
+	if (_usingI2C) {
+		Wire.beginTransmission(PLT1001_ADDR);
+		Wire.write(i2c_cmd);
+		Wire.write(param_clr);
+		Wire.write(param_x1 >> 8);
+		Wire.write(param_x1 & 0xFF);
+		Wire.write(param_y1 >> 8);
+		Wire.write(param_y1 & 0xFF);
+		Wire.write(param_x2 >> 8);	//Would be width of scrollbar
+		Wire.write(param_x2 & 0xFF);
+		Wire.write(param_y2 >> 8);	//Would be height of scrollbar
+		Wire.write(param_y2 & 0xFF);
+		Wire.write(text);
+		Wire.endTransmission();
+	}
+	else {
+		s += (String)param_clr + " ";
+		s += (String)param_x1 + " ";
+		s += (String)param_y1 + " ";
+		s += (String)param_x2 + " ";
+		s += (String)param_y2 + " ";
+		s += text;
+		s += "\r";
+		_mySerial->print(s);
+	}
 }
 
-void PLT1001Class::circle2(int color, int x, int y, int radius) {
-	String s = "circle2 ";
-	s += (String)color + " ";
-	s += (String)x + " ";
-	s += (String)y + " ";
-	s += (String)radius + "\r";
-	mySerial->print(s);
-	/*while (mySerial->available()) {
-		Serial.print((char)mySerial->read());
-	}*/
+void PLT1001::command(uns8 i2c_cmd, String s, uns8 param_clr, uns16 param_x1, uns16 param_y1, uns16 param_x2, uns16 param_y2, char* text) {
+	if (_usingI2C) {
+		Wire.beginTransmission(PLT1001_ADDR);
+		Wire.write(i2c_cmd);
+		Wire.write(param_clr);
+		Wire.write(param_x1 >> 8);
+		Wire.write(param_x1 & 0xFF);
+		Wire.write(param_y1 >> 8);
+		Wire.write(param_y1 & 0xFF);
+		Wire.write(param_x2 >> 8);	//Would be width of scrollbar
+		Wire.write(param_x2 & 0xFF);
+		Wire.write(param_y2 >> 8);	//Would be height of scrollbar
+		Wire.write(param_y2 & 0xFF);
+		Wire.write(text);
+		Wire.endTransmission();
+	}
+	else {
+		s += (String)param_clr + " ";
+		s += (String)param_x1 + " ";
+		s += (String)param_y1 + " ";
+		s += (String)param_x2 + " ";
+		s += (String)param_y2 + " ";
+		s += text;
+		s += "\r";
+		_mySerial->print(s);
+	}
 }
 
-void PLT1001Class::circlef(int color, int x, int y, int radius) {
-	String s = "circlef ";
-	s += (String)color + " ";
-	s += (String)x + " ";
-	s += (String)y + " ";
-	s += (String)radius + "\r";
-	mySerial->print(s);
+void PLT1001::enableActiveHigh(bool en) {
+	if (en) {
+		command(CMD_ENABLEACTIVE, 1);
+	}
+	else {
+		command(CMD_ENABLEACTIVE, 0);
+	}
+	delay(PLT1001_DELAY);
 }
 
-void PLT1001Class::font(int font) {
-	mySerial->print("font ");
-	mySerial->print(font);
+void PLT1001::setFont(uns8 font) {
+	if (font <= 7) {
+		command(CMD_FONT, font);
+		_currentFont = font;
+	}	
+	delay(PLT1001_DELAY);
 }
 
-void PLT1001Class::text(int color, int x, int y, char *str) {
-	String s = "text ";
-	s += (String)color + " ";
-	s += (String)x + " ";
-	s += (String)y + " ";
-	s += str;
-	s += "\r";
-	mySerial->print(s);
-	/*while (mySerial->available()) {
-		Serial.print((char)mySerial->read());
-	}*/
+void PLT1001::setScrollspeed(uns8 speed) {
+	command(CMD_SCROLLSPEED, speed);
 }
 
-/*Print text. Bottom left corner of first letter starts at x,y*/
-void PLT1001Class::textv(int color, int x, int y, char *str) {
-	String s = "textv ";
-	s += (String)color + " ";
-	s += (String)x + " ";
-	s += (String)y + " ";
-	s += str;
-	s += "\r";
-	mySerial->print(s);
-	/*while (mySerial->available()) {
-		Serial.print((char)mySerial->read());
-	}*/
+void PLT1001::pixel(uns8 color, uns16 x, uns16 y) {
+	command(CMD_PIXEL, color, x, y);
+	delay(PLT1001_DELAY*2);
 }
 
-void PLT1001Class::scrollspeed(int spd) {
-	mySerial->print("scrollspeed ");
-	mySerial->print(spd);
-	mySerial->print("\r");
-	/*while (mySerial->available()) {
-		Serial.print((char)mySerial->read());
-	}*/
+void PLT1001::line(uns8 color, uns16 x1, uns16 y1, uns16 x2, uns16 y2) {
+	command(CMD_LINE, color & 0x0F, x1, y1, x2, y2);
+	delay(PLT1001_DELAY*2);
 }
 
-void PLT1001Class::scroll(int color, int x, int y, int width, char *str) {
-	String s = "scroll ";
-	s += (String)color + " ";
-	s += (String)x + " ";
-	s += (String)y + " ";
-	s += (String)width + " ";
-	s += str;
-	s += "\r";
-	mySerial->print(s);
-	/*while (mySerial->available()) {
-		while ((char)mySerial->read() != '<') {		}
-	}*/
+void PLT1001::rectangle(uns8 color, uns16 x, uns16 y, uns16 wd, uns16 ht) {
+	color = (color & 0x0F) | 0x10;
+	command(CMD_RECT, color, x, y, wd, ht);
+	delay(PLT1001_DELAY*10);
 }
 
-void PLT1001Class::displays(int n) {
-	String s = "displays " + (String)n;
-	s += "\r";
-	mySerial->print(s);
+void PLT1001::circle(uns8 color, uns16 x, uns16 y, uns8 radius) {
+	color = (color & 0x0F) | 0x10;
+	command(CMD_CIRCLE, color, x, y, radius);
+	delay(PLT1001_DELAY*5);
 }
 
-void PLT1001Class::end() {
-	clear();
-	text(1, 24, 7, "CLOSING PLT1001");
-	paint();
-	delay(1500);
-	clear();
-	mySerial->end();
-
+void PLT1001::filledCircle(uns8 color, uns16 x, uns16 y, uns8 radius) {
+	color = (color & 0x0F) | 0x20;
+	command(CMD_CIRCLE + "f", color, x, y, radius);
+	delay(PLT1001_DELAY*5);
 }
 
-PLT1001Class plt1001;
+void PLT1001::circle2(uns8 color, uns16 x, uns16 y, uns8 radius) {
+	color = (color & 0x0F) | 0x30;
+	command(CMD_CIRCLE + "2", color, x, y, radius);
+	delay(PLT1001_DELAY*5);
+}
+
+void PLT1001::filledCircle2(uns8 color, uns16 x, uns16 y, uns8 radius) {
+	color = (color & 0x0F) | 0x40;
+	command(CMD_CIRCLE, color, x, y, radius);
+	delay(PLT1001_DELAY*5);
+}
+
+void PLT1001::text(uns8 color, uns16 x, uns16 y, String text) {
+	color |= 0x10;
+	const char* cText = text.c_str();
+	command(CMD_TEXT, color, x, y, cText);
+	delay(PLT1001_DELAY*10);
+}
+
+void PLT1001::text(uns8 color, uns16 x, uns16 y, const char* text) {
+	color |= 0x10;
+	command(CMD_TEXT, color, x, y, text);
+	delay(PLT1001_DELAY*10);
+}
+
+void PLT1001::text(uns8 color, uns16 x, uns16 y, uns8 text) {
+	color |= 0x10;
+	command(CMD_TEXT, color, x, y, text);
+	delay(PLT1001_DELAY*10);
+}
+
+void PLT1001::text_rightJustified(uns8 color, uns16 x, uns16 y, char* text) {
+	if (!_usingI2C)
+		return;
+	color |= 0x20;
+	command(CMD_TEXT, color, x, y, text);
+	delay(PLT1001_DELAY*10);
+}
+
+void PLT1001::text_centerJustified(uns8 color, uns16 x, uns16 y, char* text) {
+	if (!_usingI2C)
+		return;
+	color |= 0x30;
+	command(CMD_TEXT, color, x, y, text);
+	delay(PLT1001_DELAY*10);
+}
+
+//Text rotated 90 degrees
+void PLT1001::text_vertical(uns8 color, uns16 x, uns16 y, char* text) {
+	if (!_usingI2C)
+		return;
+	color |= 0x40;
+	command(CMD_TEXT, color, x, y, text);
+	delay(PLT1001_DELAY*10);
+}
+
+void PLT1001::text_column(uns8 color, uns16 x, uns16 y, char* text) {
+	if (!_usingI2C)
+		return;
+	color |= 0x50;
+	command(CMD_TEXT, color, x, y, text);
+	delay(PLT1001_DELAY*12);
+}
+
+void PLT1001::text_vertColumn(uns8 color, uns16 x, uns16 y, char* text) {
+	if (!_usingI2C)
+		return;
+	color |= 0x60;
+	command(CMD_TEXT, color, x, y, text);
+	delay(PLT1001_DELAY*12);
+}
+
+void PLT1001::scroll(uns8 color, uns16 x, uns16 y, uns16 wd, uns16 ht, char* text) {
+	color &= 0x0F;
+	command(CMD_SCROLL, color, x, y, wd, ht, text);
+	delay(PLT1001_DELAY*12);
+}
+
+void PLT1001::scroll(uns8 color, uns16 x, uns16 y, uns16 wd, uns16 ht, const char* text) {
+	color &= 0x0F;
+	command(CMD_SCROLL, color, x, y, wd, ht, text);
+	delay(PLT1001_DELAY*12);
+}
+
+void PLT1001::scroll(uns8 color, uns16 x, uns16 y, uns16 wd, uns16 ht, String text) {
+	color &= 0x0F;
+	const char* cText = text.c_str();
+	command(CMD_SCROLL, color, x, y, wd, ht, cText);
+	delay(PLT1001_DELAY*12);
+}
