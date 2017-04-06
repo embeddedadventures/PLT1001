@@ -71,8 +71,6 @@ void setup() {
 }
 
 void loop() {
-  plt1001.wait();
-  delay(100);
   pixelTest();
   delay(1000);
   plt1001.clear();
