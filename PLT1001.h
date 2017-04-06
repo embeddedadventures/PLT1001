@@ -101,6 +101,7 @@ private:
 	
 public:
 	PLT1001();	//Defaults to I2C usage
+	~PLT1001();
 	
 	void	begin(HardwareSerial *cereal = 0);
 	void	title();

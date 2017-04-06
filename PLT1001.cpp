@@ -59,6 +59,8 @@ PLT1001::PLT1001() {
 	_currentFont = 1;
 }
 
+PLT1001::~PLT1001() {}
+
 void PLT1001::begin(HardwareSerial *cereal) {
 	if (cereal == 0) {
 		_usingI2C = true;
