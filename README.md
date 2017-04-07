@@ -22,6 +22,7 @@ Call this function to change the scroll time duration. The timing refers to how 
 All the visual commands (texts, shapes, pixe, clear) for the PLT1001 driver board load the image into the memory. In order for the image to be driven to the LED panel, this function must be called. 
 
 ###Visuals###
+
 	clear()
 Clear the image memory. 
 
@@ -34,7 +35,30 @@ Draw a line with left-most starting point at (x1, y1) to (x2, y2).
 	rectangle(uns8 color, uns16 x, uns16 y, uns16 wd, uns16 ht)
 Draw a rectangle whose bottom left corner starts at (x, y) and has width = wd and height = ht.
 
+<h4>Circles</h4>
+	circle(uns8 color, uns16 x, uns16 y, uns8 radius)
+Draw a hollow circle with center at (x, y). The other 3 circle functions, *filledCircle()*, *circle2()*, and *filledCircle2()* have the same parameter formats. 
+Circle2 is the same circle drawn, but slightly bigger and more square-looking than the regular *circle()*. Try it out and see if you like it!
 
+<h4>Text</h4>
+	text(uns8 color, uns16 x, uns16 y, "text")
+The text drawn will have its bottom left corner starting at (x, y). "text" is accepted as String, char*, const char\*, and uint8_t.
+
+These next functions are all text-format functions and accept only char* arguments. They are only supported by I2C communication, not UART Serial.
+
+	text_rightJustified()
+The (x, y) determines the bottom right corner of the text.
+
+	text_centerJustified()
+The (x, y) determines the center position of the text.
+
+	text_vertical()
+The line of text will be shown as usual, but rotated 90 degrees.
+
+	text_column()
+The next example shows a visual of "sample" as displayed normally, then with the above function:
+<br>*sample*<br>vs.
+<br>*s*<br>*a*<br>*m*<br>*p*<br>*l*<br>*e*
 
 
 ----------
