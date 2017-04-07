@@ -62,6 +62,17 @@ The next example shows a visual of "sample" as displayed normally, then with the
 <br>*s*<br>*a*<br>*m*<br>*p*<br>*l*<br>*e*
 
 
+## Wiring ##
+<h3>Serial Connection</h3>
+The PLT1001 can be controlled through UART Serial connection. At the moment, only hardware UART is supported. This is great for boards like the Arduino Micro. Connect the appropriate pins to the RX and TX pins of the driver board and power it up.
+
+<h3>I2C Connection</h3>
+The PLT1001 also offers I2C support, with an extended list of commands that aren't available through Serial protocol. To control the driver board with your Arduino using I2C, connect the following: 
+
+- SDA pin -> RB2
+- SCL pin -> RB1
+
+
 ----------
 <h2>TODO</h2>
 
