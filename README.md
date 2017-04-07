@@ -8,7 +8,8 @@ The PLT1001 Arduino library defaults to I2C protocol for communication between t
 	begin(&Serial1)
 The library also supports hardware serial communication for boards like the Arduino Micro, in which case the function above should be added in the setup() portion of your sketch to enable UART communication. 
 
-###Settings/Basic Commands###
+<h3>Settings/Basic Commands</h3>
+
 	enableActiveHigh(false)
 At the moment, the only LED panel we have that is active high is the <a href="http://www.embeddedadventures.com/LED_matrix_display_LDP-8008.html">LDP-8008</a>, in which case you'll want to change the parameter to "true". For all other panels (<a href="http://www.embeddedadventures.com/led_matrix_display_LDP-6432-P7.62v2.html">LDP-6432-P7.62</a>, <a href="http://www.embeddedadventures.com/led_matrix_display_LDP-6432.html">LDP-6432-P4</a>, <a href="http://www.embeddedadventures.com/LED_matrix_display_LDP-6416.html"> <a href="http://www.embeddedadventures.com/LED_matrix_display_LDP-6416.html">LDP-6416-P4</a>, or <a href="http://www.embeddedadventures.com/LED_matrix_display_LDP-6416-P7.62.html">LDP-6416-P7.62</a>), leave it at "false."
 
@@ -21,7 +22,7 @@ Call this function to change the scroll time duration. The timing refers to how 
 	paint()
 All the visual commands (texts, shapes, pixe, clear) for the PLT1001 driver board load the image into the memory. In order for the image to be driven to the LED panel, this function must be called. 
 
-###Visuals###
+<h3>Visuals</h3>
 
 	clear()
 Clear the image memory. 
