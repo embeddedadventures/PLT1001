@@ -38,12 +38,12 @@ Draw a rectangle whose bottom left corner starts at (x, y) and has width = wd an
 
 <h4>Circles</h4>
 	circle(uns8 color, uns16 x, uns16 y, uns8 radius)
-Draw a hollow circle with center at (x, y). The other 3 circle functions, *filledCircle()*, *circle2()*, and *filledCircle2()* have the same parameter formats. 
+Draw a hollow circle with center at (x, y). The other 3 circle functions, *filledCircle()* , *circle2()* , and *filledCircle2()*  have the same parameter formats. 
 Circle2 is the same circle drawn, but slightly bigger and more square-looking than the regular *circle()*. Try it out and see if you like it!
 
 <h4>Text</h4>
 	text(uns8 color, uns16 x, uns16 y, "text")
-The text drawn will have its bottom left corner starting at (x, y). "text" is accepted as String, char*, const char\*, and uint8_t.
+The text drawn will have its bottom left corner starting at (x, y). "text" is accepted as String, char*, const char*, and uint8_t.
 
 These next functions are all text-format functions and accept only char* arguments. They are only supported by I2C communication, not UART Serial.
 
