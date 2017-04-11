@@ -10,8 +10,8 @@ The library also supports hardware serial communication for boards like the Ardu
 
 <h3>Settings/Basic Commands</h3>
 
-	enableActiveHigh(false)
-At the moment, the only LED panel we have that is active high is the <a href="http://www.embeddedadventures.com/LED_matrix_display_LDP-8008.html">LDP-8008</a>, in which case you'll want to change the parameter to "true". For all other panels (<a href="http://www.embeddedadventures.com/led_matrix_display_LDP-6432-P7.62v2.html">LDP-6432-P7.62</a>, <a href="http://www.embeddedadventures.com/led_matrix_display_LDP-6432.html">LDP-6432-P4</a>, <a href="http://www.embeddedadventures.com/LED_matrix_display_LDP-6416.html"> <a href="http://www.embeddedadventures.com/LED_matrix_display_LDP-6416.html">LDP-6416-P4</a>, or <a href="http://www.embeddedadventures.com/LED_matrix_display_LDP-6416-P7.62.html">LDP-6416-P7.62</a>), leave it at "false."
+	enableActiveHigh(true)
+At the moment, the only LED panel we have that is active low is the <a href="http://www.embeddedadventures.com/LED_matrix_display_LDP-8008.html">LDP-8008</a>, in which case you'll want to change the parameter to "false". For all other panels (<a href="http://www.embeddedadventures.com/led_matrix_display_LDP-6432-P7.62v2.html">LDP-6432-P7.62</a>, <a href="http://www.embeddedadventures.com/led_matrix_display_LDP-6432.html">LDP-6432-P4</a>, <a href="http://www.embeddedadventures.com/LED_matrix_display_LDP-6416.html"> <a href="http://www.embeddedadventures.com/LED_matrix_display_LDP-6416.html">LDP-6416-P4</a>, or <a href="http://www.embeddedadventures.com/LED_matrix_display_LDP-6416-P7.62.html">LDP-6416-P7.62</a>), leave it at "true."
 
 	setFont(uns8 font)
 The PLT1001 firmware currently supports 8 different font types. The library defaults to 1 as the font. You'll want to do a check with the LED panel you are using to determine what font works best with your application.

@@ -293,6 +293,8 @@ void PLT1001::enableActiveHigh(bool en) {
 	delay(PLT1001_DELAY);
 }
 
+
+//8 font types total, going from small to big
 void PLT1001::setFont(uns8 font) {
 	if (font <= 7) {
 		command(CMD_FONT, font);
@@ -301,6 +303,8 @@ void PLT1001::setFont(uns8 font) {
 	delay(PLT1001_DELAY);
 }
 
+
+//Time between text transition i.e. smaller param = faster scroll
 void PLT1001::setScrollspeed(uns8 speed) {
 	command(CMD_SCROLLSPEED, speed);
 }
