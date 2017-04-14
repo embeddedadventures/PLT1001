@@ -73,7 +73,7 @@ The PLT1001 also offers I2C support, with an extended list of commands that aren
 - SCL pin -> RB1
 
 ## Contact ##
-Questions/comments/concerns regarding the code? Raise it up as a <a href="https://github.com/embeddedadventures/PLT1001/issues/new">new issue</a> and we will help as soon as possible. You may also contact drances@embeddedadventures.com. Thanks!
+Questions/comments/concerns regarding the code? Raise it up as a <a href="https://github.com/embeddedadventures/PLT1001/issues/new">new issue</a> and we will help as soon as possible. You may also contact support@embeddedadventures.com. Thanks!
 
 ----------
 <h2>TODO</h2>
