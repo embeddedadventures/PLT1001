@@ -36,7 +36,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 /*	PLT1001 LED Matrix display driver Arduino library
 	Written originally by Embedded Adventures
-	v2.0
+	v2.1
 */
 
 
@@ -45,6 +45,19 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Arduino.h"
 #include "Wire.h"
+#include "SoftwareSerial.h"
+
+#define LDP8008
+
+#ifdef LDP6432
+	#warning "Using LDP-64x32 command set"
+#elif defined(LDP6416)
+	#warning "Using LDP6416 command set"
+#elif defined(LDP8008)
+	#warning "Using LDP-8008 command set"
+#else
+	#error "You must define the display your PLT-1001 firmware is for!"
+#endif
 
 #ifndef		uns8
 	#define		uns8	uint8_t
@@ -80,7 +93,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #define		CMD_LINE			0x0F,	(String)"line "
 #define		CMD_RECT			0x0F,	(String)"rect "
 
-#define		CMD_TEXT			0x10,	(String)"text"
+#define		CMD_TEXT			0x10,	(String)"text "
 
 #define		CMD_SCROLL			0x11,	(String)"scroll "
 #define		CMD_SCROLLSTOP		0x12,	(String)""
@@ -88,7 +101,9 @@ THE POSSIBILITY OF SUCH DAMAGE.
 class PLT1001 {
 private:
 	HardwareSerial *_mySerial;
+	SoftwareSerial *_softSerial;
 	bool			_usingI2C;	
+	bool			_usingSoft;
 	uns8			_currentFont;
 	
 	void	command(uns8 i2c_cmd, String s, uns8 param);
@@ -104,6 +119,7 @@ public:
 	~PLT1001();
 	
 	void	begin(HardwareSerial *cereal = 0);
+	void	beginSoftwareSerial(SoftwareSerial *cereal = 0);
 	void	title();
 	void	paint();
 	void	clear();

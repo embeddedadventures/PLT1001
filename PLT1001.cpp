@@ -55,7 +55,9 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 PLT1001::PLT1001() {
 	_usingI2C = true;
+	_usingSoft = false;
 	_mySerial = 0;
+	_softSerial = 0;
 	_currentFont = 1;
 }
 
@@ -64,6 +66,7 @@ PLT1001::~PLT1001() {}
 void PLT1001::begin(HardwareSerial *cereal) {
 	if (cereal == 0) {
 		_usingI2C = true;
+		_usingSoft = false;
 		_mySerial = 0;
 		Wire.begin();
 	}
@@ -76,6 +79,15 @@ void PLT1001::begin(HardwareSerial *cereal) {
 	}
 }
 
+void PLT1001::beginSoftwareSerial(SoftwareSerial *cereal) {
+	_usingI2C = false;
+	_usingSoft = true;
+	_softSerial = cereal;
+	_softSerial->begin(115200);
+	delay(PLT1001_DELAY*10);
+	DEBUGLN("serial mode");
+}
+
 void PLT1001::title() {
 	if (_usingI2C) {
 		Wire.beginTransmission(PLT1001_ADDR);
@@ -84,7 +96,10 @@ void PLT1001::title() {
 	}
 	else {
 		DEBUGLN("Send thru rxtx");
-		_mySerial->print("title\r");
+		if (_usingSoft)
+			_softSerial->print("title\r");
+		else
+			_mySerial->print("title\r");
 	}
 	DEBUGLN("title");
 }
@@ -97,8 +112,11 @@ void PLT1001::paint() {
 		Wire.endTransmission();
 	}
 	else {
-		_mySerial->print("paint\r");
-	}
+		if (_usingSoft)
+			_softSerial->print("paint\r");
+		else
+			_mySerial->print("paint\r");
+	}	
 }
 
 void PLT1001::clear() {
@@ -109,8 +127,11 @@ void PLT1001::clear() {
 		Wire.endTransmission();
 	}
 	else {
-		_mySerial->print("clear\r");
-	}
+		if (_usingSoft)
+			_softSerial->print("clear\r");
+		else
+			_mySerial->print("clear\r");
+	}	
 }
 
 void PLT1001::command(uns8 i2c_cmd, String s, uns8 param) {
@@ -123,7 +144,10 @@ void PLT1001::command(uns8 i2c_cmd, String s, uns8 param) {
 	else {
 		s += (String)param;
 		s += "\r";
-		_mySerial->print(s);
+		if (_usingSoft)
+			_softSerial->print(s);
+		else
+			_mySerial->print(s);
 	}
 }
 
@@ -149,7 +173,10 @@ void PLT1001::command(uns8 i2c_cmd, String s, uns8 param_clr, uns16 param_x, uns
 		if (param_rad > 0)
 			s += " " + (String)param_rad;
 		s += "\r";
-		_mySerial->print(s);
+		if (_usingSoft)
+			_softSerial->print(s);
+		else
+			_mySerial->print(s);
 	}
 }
 
@@ -175,7 +202,10 @@ void PLT1001::command(uns8 i2c_cmd, String s, uns8 param_clr, uns16 param_x1, un
 		s += (String)param_y1 + " ";
 		s += (String)param_x2 + " ";
 		s += (String)param_y2 + "\r";
-		_mySerial->print(s);
+		if (_usingSoft)
+			_softSerial->print(s);
+		else
+			_mySerial->print(s);
 		DEBUGLN(s);
 	}
 }
@@ -196,10 +226,13 @@ void PLT1001::command(uns8 i2c_cmd, String s, uns8 param_clr, uns8 param_x, uns8
 	else {
 		s += (String)(param_clr & 0x0F) + " ";
 		s += (String)param_x + " ";
-		s += (String)param_y + " ";
+		s += (String)param_y + " \"";
 		s += text;
-		s += "\r";
-		_mySerial->print(s);
+		s += "\"\r";
+		if (_usingSoft)
+			_softSerial->print(s);
+		else
+			_mySerial->print(s);
 	}
 }
 
@@ -219,10 +252,14 @@ void PLT1001::command(uns8 i2c_cmd, String s, uns8 param_clr, uns8 param_x, uns8
 	else {
 		s += (String)(param_clr & 0x0F) + " ";
 		s += (String)param_x + " ";
-		s += (String)param_y + " ";
+		s += (String)param_y + " \"";
 		s += text;
-		s += "\r";
-		_mySerial->print(s);
+		s += "\"\r";
+		if (_usingSoft)
+			_softSerial->print(s);
+		else
+			_mySerial->print(s);
+		DEBUGLN(s);
 	}
 }
 
@@ -247,11 +284,19 @@ void PLT1001::command(uns8 i2c_cmd, String s, uns8 param_clr, uns16 param_x1, un
 		s += (String)param_clr + " ";
 		s += (String)param_x1 + " ";
 		s += (String)param_y1 + " ";
+#ifndef LDP8008		
 		s += (String)param_x2 + " ";
-		s += (String)param_y2 + " ";
+		s += (String)param_y2 + " \"";
+#else		
+		s += (String)param_x2 + " \"";
+#endif
 		s += text;
-		s += "\r";
-		_mySerial->print(s);
+		s += "\"\r";
+		if (_usingSoft)
+			_softSerial->print(s);
+		else
+			_mySerial->print(s);
+		DEBUGLN(s);
 	}
 }
 
@@ -275,11 +320,20 @@ void PLT1001::command(uns8 i2c_cmd, String s, uns8 param_clr, uns16 param_x1, un
 		s += (String)param_clr + " ";
 		s += (String)param_x1 + " ";
 		s += (String)param_y1 + " ";
+		
+#ifndef LDP8008		
 		s += (String)param_x2 + " ";
-		s += (String)param_y2 + " ";
+		s += (String)param_y2 + " \"";
+#else		
+		s += (String)param_x2 + " \"";
+#endif		
+		
 		s += text;
 		s += "\r";
-		_mySerial->print(s);
+		if (_usingSoft)
+			_softSerial->print(s);
+		else
+			_mySerial->print(s);
 	}
 }
 
