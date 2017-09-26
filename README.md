@@ -6,7 +6,13 @@ Arduino library and test sketches for the <a href="http://www.embeddedadventures
 The PLT1001 Arduino library defaults to I2C protocol for communication between the Arduino and the PLT1001 driver board. 
 
 	begin(&Serial1)
+
 The library also supports hardware serial communication for boards like the Arduino Micro, in which case the function above should be added in the setup() portion of your sketch to enable UART communication. 
+
+	beginSoftwareSerial(&SoftwareSerial obj)
+
+We've included support to control the PLT-1001 using the SoftwareSerial library. Use the command above to use it, and make sure to include the library in your sketch.
+
 
 <h3>Settings/Basic Commands</h3>
 
@@ -64,13 +70,15 @@ The next example shows a visual of "sample" as displayed normally, then with the
 
 ## Wiring ##
 <h3>Serial Connection</h3>
-The PLT1001 can be controlled through UART Serial connection. At the moment, only hardware UART is supported. This is great for boards like the Arduino Micro. Connect the appropriate pins to the RX and TX pins of the driver board and power it up.
+The PLT1001 can be controlled through UART Serial connection. Connect the appropriate pins to the RX and TX pins of the driver board and power it up.
 
 <h3>I2C Connection</h3>
 The PLT1001 also offers I2C support, with an extended list of commands that aren't available through Serial protocol. To control the driver board with your Arduino using I2C, connect the following: 
 
 - SDA pin -> RB2
 - SCL pin -> RB1
+
+NOTE - firmware for the LDP-8008 does not support I2C commands yet. We will update it and post as soon as firmware has been updated.
 
 ## Contact ##
 Questions/comments/concerns regarding the code? Raise it up as a <a href="https://github.com/embeddedadventures/PLT1001/issues/new">new issue</a> and we will help as soon as possible. You may also contact support@embeddedadventures.com. Thanks!
@@ -80,4 +88,3 @@ Questions/comments/concerns regarding the code? Raise it up as a <a href="https:
 
 - [] Include check for buffer overflow for I2C protocol
 - [] Implement other scrolling functions
-- [] Fix *title()* command through Serial communication
