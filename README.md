@@ -80,6 +80,9 @@ The PLT1001 also offers I2C support, with an extended list of commands that aren
 
 NOTE - firmware for the LDP-8008 does not support I2C commands yet. We will update it and post as soon as firmware has been updated.
 
+## Firmware Updates ##
+The PLT-1001 is capable of handling one type of display at a time. The firmware for each display can be found in our [firmware pack](https://www.embeddedadventures.com/downloads/plt1001v4_firmware_pack_3v02.zip), and instructions for updating your PLT-1001 can be found [here](https://www.embeddedadventures.com/downloads/Updating_PLT1001v4_firmware.pdf).
+
 ## Contact ##
 Questions/comments/concerns regarding the code? Raise it up as a <a href="https://github.com/embeddedadventures/PLT1001/issues/new">new issue</a> and we will help as soon as possible. You may also contact support@embeddedadventures.com. Thanks!
 
