@@ -60,6 +60,7 @@ void setup() {
 }
 
 void loop() {
+  //Enter something in the serial terminal to start a quick display test
   if (Serial.available()) {
     Serial.read();
     plt1001.clear();
