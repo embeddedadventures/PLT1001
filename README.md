@@ -3,11 +3,13 @@
 Arduino library and test sketches for the <a href="http://www.embeddedadventures.com/led_matrix_display_driver_plt-1001v4.html">PLT1001 LED Matrix Display driver</a>.
 
 ## Using the library ##
+NOTE: This library is only for the PLT-1001 driver board. It cannot be used with the PLT-2001 driver board.
+
 The PLT1001 Arduino library defaults to I2C protocol for communication between the Arduino and the PLT1001 driver board. 
 
 	begin(&Serial1)
 
-The library also supports hardware serial communication for boards like the Arduino Micro, in which case the function above should be added in the setup() portion of your sketch to enable UART communication. 
+The library also supports hardware serial communication for boards like the Arduino Micro, in which case the function above should be used in the setup() portion of your sketch to enable UART communication. Just replace the parameter with the hardware serial object you're using e.g. Serial1, Serial2, SerialUSB, etc.
 
 	beginSoftwareSerial(&SoftwareSerial obj)
 
